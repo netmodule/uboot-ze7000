@@ -148,8 +148,8 @@ static u32 zynq_i2c_wait(u32 mask)
 {
 	int timeout, int_status;
 
-	for (timeout = 0; timeout < 100; timeout++) {
-		udelay(100);
+	for (timeout = 0; timeout < 200; timeout++) {
+		udelay(50);
 		int_status = readl(&zynq_i2c->interrupt_status);
 		if (int_status & mask)
 			break;
