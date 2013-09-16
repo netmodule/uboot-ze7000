@@ -376,15 +376,32 @@ static void nand_print_and_set_info(int idx)
 {
 	nand_info_t *nand = &nand_info[idx];
 	struct nand_chip *chip = nand->priv;
+	char buf[32];
+	ulong eccbyte;
 
 	printf("Device %d: ", idx);
 	if (chip->numchips > 1)
 		printf("%dx ", chip->numchips);
-	printf("%s, sector size %u KiB\n",
-	       nand->name, nand->erasesize >> 10);
+	printf("%s, sector size %u KiB\n", nand->name, nand->erasesize >> 10);
 	printf("  Page size  %8d b\n", nand->writesize);
 	printf("  OOB size   %8d b\n", nand->oobsize);
+	printf("  OOB avail  %8d b\n", nand->oobavail);
+	printf("  ECC size   %8d b\n", nand->ecclayout->eccbytes);
+	printf("  ECC bytes  ");
+	for (eccbyte = 0; eccbyte < nand->ecclayout->eccbytes; eccbyte++) {
+		printf("%2d, ", nand->ecclayout->eccpos[eccbyte]);
+		if (7 == (eccbyte % 8))
+			printf("\n             ");
+	}
+	printf("\n");
 	printf("  Erase size %8d b\n", nand->erasesize);
+
+	/* print ECC statistic counters */
+	printf("ECC Statistics:\n");
+	printf("  Corrected  %8d b\n", nand->ecc_stats.corrected);
+	printf("  Failed     %8d b\n", nand->ecc_stats.failed);
+	printf("  Bad Blocks %8d b\n", nand->ecc_stats.badblocks);
+	printf("  BBT Blocks %8d b\n", nand->ecc_stats.bbtblocks);
 
 	/* Set geometry info */
 	setenv_hex("nand_writesize", nand->writesize);
