@@ -352,7 +352,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		len -= erase_size;
 	}
 
-	printf("SF: Successfully erased %zu bytes @ %#x\n", end, start);
+	printf("SF: Successfully erased %zu bytes @ %#x\n", end-start, start);
 
  out:
 	spi_release_bus(flash->spi);
