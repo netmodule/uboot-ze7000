@@ -947,6 +947,10 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 	return;
 }
 
+#if defined (CONFIG_ZX3)
+extern void zx3_set_storage (int store);
+#endif
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
@@ -955,6 +959,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	debug("%s: bus: %d cs: %d max_hz: %d mode: %d\n",
 	      __func__, bus, cs, max_hz, mode);
+
+#if defined (CONFIG_ZX3)
+	zx3_set_storage (ZX3_QSPI);
+#endif
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;

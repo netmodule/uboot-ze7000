@@ -28,6 +28,10 @@
 #include <jffs2/jffs2.h>
 #include <nand.h>
 
+#if defined (CONFIG_ZX3)
+extern void zx3_set_storage (int store);
+#endif
+
 #if defined(CONFIG_CMD_MTDPARTS)
 
 /* partition handling routines */
@@ -376,7 +380,6 @@ static void nand_print_and_set_info(int idx)
 {
 	nand_info_t *nand = &nand_info[idx];
 	struct nand_chip *chip = nand->priv;
-	char buf[32];
 	ulong eccbyte;
 
 	printf("Device %d: ", idx);
@@ -442,6 +445,7 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 	return ret;
 }
 
+
 static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret = 0;
@@ -466,6 +470,10 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		quiet = simple_strtoul(quiet_str, NULL, 0) != 0;
 
 	cmd = argv[1];
+
+#if defined (CONFIG_ZX3)
+    zx3_set_storage (ZX3_NAND);
+#endif
 
 	/* Only "dump" is repeatable. */
 	if (repeat && strcmp(cmd, "dump"))
@@ -969,6 +977,11 @@ static int do_nandboot(cmd_tbl_t *cmdtp, int flag, int argc,
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
+
+
+#if defined (CONFIG_ZX3)
+    zx3_set_storage (ZX3_NAND);
+#endif
 
 	if (argc >= 2) {
 		char *p = (argc == 2) ? argv[1] : argv[2];
