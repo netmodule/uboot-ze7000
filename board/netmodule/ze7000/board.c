@@ -237,10 +237,26 @@ int board_phy_config(struct phy_device *phydev)
 	        }
 	        else if ((phydev->phy_id & 0x00fffff0) == 0x00221620 ) { /* KSZ9031, last four bits are revision number -> ignore */
 	            printf("board phy config: KSZ9031 @ %u\n", phydev->addr);
+	            /* MMD Address 2h, Register 4h – RGMII Control Signal Pad Skew */
+	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
+	            phy_write(phydev, phydev->addr, 0xE, 0x0004); // Reg 0x4
+	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
+	            phy_write(phydev, phydev->addr, 0xE, 0x0000);
+	            /* MMD Address 2h, Register 5h – RGMII RX Data Pad Skew */
+	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
+	            phy_write(phydev, phydev->addr, 0xE, 0x0005); // Reg 0x5
+	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
+	            phy_write(phydev, phydev->addr, 0xE, 0x0000);
+	            /* MMD Address 2h, Register 6h – RGMII TX Data Pad Skew */
+	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
+	            phy_write(phydev, phydev->addr, 0xE, 0x0006); // Reg 0x6
+	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
+	            phy_write(phydev, phydev->addr, 0xE, 0x0000);
+	            /* MMD Address 2h, Register 8h – RGMII Clock Pad Skew */
 	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
 	            phy_write(phydev, phydev->addr, 0xE, 0x0008); // Reg 0x8
 	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x03FF); //3FF = max RXC and TXC delay
+	            phy_write(phydev, phydev->addr, 0xE, 0x03C0);
 	            do_once_gem0 = 1;
 	        }
 	        else {
@@ -349,11 +365,11 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_ZYNQ_GEM)
 # if defined(CONFIG_ZYNQ_GEM0)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR0,
-						CONFIG_ZYNQ_GEM_PHY_ADDR0, 0);
+						CONFIG_ZYNQ_GEM_PHY_ADDR0, 1);
 # endif
 # if defined(CONFIG_ZYNQ_GEM1)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR1,
-						CONFIG_ZYNQ_GEM_PHY_ADDRD, 0);
+						CONFIG_ZYNQ_GEM_PHY_ADDRD, 1);
 # endif
 #endif
 
