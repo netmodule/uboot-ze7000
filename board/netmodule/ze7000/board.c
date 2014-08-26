@@ -108,15 +108,21 @@ int board_init(void)
 	return 0;
 }
 
+
 int board_late_init (void)
 {
-    unsigned int fpgaVersion;
-    unsigned int phyControl;
+    u32 fpgaVersion;
+    u32 phyControl;
+    char fpgaPrjRefString[32];
 
     puts("FPGA:  ");
     fpgaVersion = __REG(CONFIG_FPGA_VERSION_REG);
-    printf("v%d.%d\n", (fpgaVersion & CONFIG_FPGA_VERSION_MAJOR_MASK) >> CONFIG_FPGA_VERSION_MAJOR_FSB,
-                       (fpgaVersion & CONFIG_FPGA_VERSION_MINOR_MASK) >> CONFIG_FPGA_VERSION_MINOR_FSB);
+    memset(fpgaPrjRefString, 0, sizeof(fpgaPrjRefString));
+    memcpy(fpgaPrjRefString, CONFIG_FPGA_PRJREF_STRING, sizeof(fpgaPrjRefString));
+
+    printf("v%d.%d (%s)\n", (fpgaVersion & CONFIG_FPGA_VERSION_MAJOR_MASK) >> CONFIG_FPGA_VERSION_MAJOR_FSB,
+                       (fpgaVersion & CONFIG_FPGA_VERSION_MINOR_MASK) >> CONFIG_FPGA_VERSION_MINOR_FSB,
+                       fpgaPrjRefString);
 
 #ifdef CONFIG_ZYNQ_GEM0
     /* Release Phy reset for eth0 */
