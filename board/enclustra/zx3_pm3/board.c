@@ -227,31 +227,52 @@ int board_phy_config(struct phy_device *phydev)
 
 	if (!do_once) {
 		/* first interface, on module */
-	if (phydev->dev->iobase == ZYNQ_GEM_BASEADDR0) {
-			/* Giga skew value */
-			if (phydev->phy_id == 0x00221611) { /* KSZ9021, used on first board series */
-				printf("board phy config: KSZ9021 @ %u\n", phydev->addr);
-				phy_write(phydev, phydev->addr, 0xB, 0x8104); // RGMII clock and control pad skew (reg 260)
-				phy_write(phydev, phydev->addr, 0xC, 0xF0F0);
-				phy_write(phydev, phydev->addr, 0xB, 0x8105); // RGMII RX pad skew (reg 261)
-				phy_write(phydev, phydev->addr, 0xC, 0x0);
-			}
-			else if ((phydev->phy_id & 0x00fffff0) == 0x00221620 ) { /* KSZ9031, last four bits are revision number -> ignore */
-				printf("board phy config: KSZ9031 @ %u\n", phydev->addr);
-				phy_write(phydev, phydev->addr, 0xD, 0x0002);
-				phy_write(phydev, phydev->addr, 0xE, 0x0008); // Reg 0x8
-				phy_write(phydev, phydev->addr, 0xD, 0x4002);
-				phy_write(phydev, phydev->addr, 0xE, 0x03FF); //3FF = max RXC and TXC delay
+		if (phydev->dev->iobase == ZYNQ_GEM_BASEADDR0) {
+
+				/* KSZ9031, last four bits are revision number -> ignore */
+				if ((phydev->phy_id & 0x00fffff0) == 0x00221620 ) {
+					printf("board phy config: KSZ9031 REV: %d @ %u\n",
+							phydev->phy_id & 0x0000000F, phydev->addr);
+
+					//Ctrl Delay
+					#define CTRL_RX_DELAY (7) //0..15
+					#define CTRL_TX_DELAY (7) //0..15
+					phy_write(phydev, phydev->addr, 0xD, 0x0002);
+					phy_write(phydev, phydev->addr, 0xE, 0x0004);
+					phy_write(phydev, phydev->addr, 0xD, 0x4002);
+					phy_write(phydev, phydev->addr, 0xE, (CTRL_TX_DELAY+(CTRL_RX_DELAY<<4)));
+
+					//Data Delay
+					#define DATA_RX_DELAY (7) //0..15
+					#define DATA_TX_DELAY (7) //0..15
+					phy_write(phydev, phydev->addr, 0xD, 0x0002);
+					phy_write(phydev, phydev->addr, 0xE, 0x0005);
+					phy_write(phydev, phydev->addr, 0xD, 0x4002);
+					phy_write(phydev, phydev->addr, 0xE, (DATA_RX_DELAY+(DATA_RX_DELAY << 4)+(DATA_RX_DELAY << 8)+(DATA_RX_DELAY << 12)));
+
+					phy_write(phydev, phydev->addr, 0xD, 0x0002);
+					phy_write(phydev, phydev->addr, 0xE, 0x0006);
+					phy_write(phydev, phydev->addr, 0xD, 0x4002);
+					phy_write(phydev, phydev->addr, 0xE, (DATA_TX_DELAY+(DATA_TX_DELAY << 4)+(DATA_TX_DELAY << 8)+(DATA_TX_DELAY << 12)));
+
+					//Clock Delay
+					#define CLK_RX_DELAY (31) //0..31
+					#define CLK_TX_DELAY (31) //0..31
+					phy_write(phydev, phydev->addr, 0xD, 0x0002);
+					phy_write(phydev, phydev->addr, 0xE, 0x0008);
+					phy_write(phydev, phydev->addr, 0xD, 0x4002);
+					phy_write(phydev, phydev->addr, 0xE, (CLK_RX_DELAY+(CLK_TX_DELAY<<5)));
+
+				}
+				else {
+					printf ("\n\nBoard PHY config: unsupported PHY Model, ID:0x%08X\n\n", phydev->phy_id);
+					goto exit;
+				}
 			}
 			else {
-				printf ("board phy config: unsupported PHY Model, ID:0x%08X\n", phydev->phy_id);
+				printf("unsupported GEM base addr: 0x%X", phydev->dev->iobase);
 				goto exit;
 			}
-		}
-		else {
-			printf("unsupported GEM base addr: 0x%X", phydev->dev->iobase);
-			goto exit;
-		}
 	}
 
 	do_once = 1;
