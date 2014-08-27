@@ -231,44 +231,40 @@ int board_phy_config(struct phy_device *phydev)
 
 	/* first interface, on module */
 	if (phydev->dev->iobase == ZYNQ_GEM_BASEADDR0) {
-	    if (do_once_gem0 == 0) {
-	        /* Giga skew value */
-	        if (phydev->phy_id == 0x00221611) { /* KSZ9021, used on first board series */
-	            printf("board phy config: KSZ9021 @ %u\n", phydev->addr);
-	            phy_write(phydev, phydev->addr, 0xB, 0x8104); // RGMII clock and control pad skew (reg 260)
-	            phy_write(phydev, phydev->addr, 0xC, 0xF0F0);
-	            phy_write(phydev, phydev->addr, 0xB, 0x8105); // RGMII RX pad skew (reg 261)
-	            phy_write(phydev, phydev->addr, 0xC, 0x0);
-	            do_once_gem0 = 1;
-	        }
-	        else if ((phydev->phy_id & 0x00fffff0) == 0x00221620 ) { /* KSZ9031, last four bits are revision number -> ignore */
-	            printf("board phy config: KSZ9031 @ %u\n", phydev->addr);
-	            /* MMD Address 2h, Register 4h – RGMII Control Signal Pad Skew */
-	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x0004); // Reg 0x4
-	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x0000);
-	            /* MMD Address 2h, Register 5h – RGMII RX Data Pad Skew */
-	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x0005); // Reg 0x5
-	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x0000);
-	            /* MMD Address 2h, Register 6h – RGMII TX Data Pad Skew */
-	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x0006); // Reg 0x6
-	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x0000);
-	            /* MMD Address 2h, Register 8h – RGMII Clock Pad Skew */
-	            phy_write(phydev, phydev->addr, 0xD, 0x0002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x0008); // Reg 0x8
-	            phy_write(phydev, phydev->addr, 0xD, 0x4002);
-	            phy_write(phydev, phydev->addr, 0xE, 0x03C0);
-	            do_once_gem0 = 1;
-	        }
-	        else {
-	            printf ("board phy config: unsupported PHY Model, ID:0x%08X\n", phydev->phy_id);
-	        }
-	    }
+		if (do_once_gem0 == 0) {
+
+			/* KSZ9031, last four bits are revision number -> ignore */
+			if ((phydev->phy_id & 0x00fffff0) == 0x00221620 ) {
+
+				printf("board phy config: KSZ9031 REV: %d @ %u\n",
+						phydev->phy_id & 0x0000000F, phydev->addr);
+
+				/* MMD Address 2h, Register 4h - RGMII Control Signal Pad Skew */
+				phy_write(phydev, phydev->addr, 0xD, 0x0002);
+				phy_write(phydev, phydev->addr, 0xE, 0x0004); // Reg 0x4
+				phy_write(phydev, phydev->addr, 0xD, 0x4002);
+				phy_write(phydev, phydev->addr, 0xE, 0x0000);
+				/* MMD Address 2h, Register 5h - RGMII RX Data Pad Skew */
+				phy_write(phydev, phydev->addr, 0xD, 0x0002);
+				phy_write(phydev, phydev->addr, 0xE, 0x0005); // Reg 0x5
+				phy_write(phydev, phydev->addr, 0xD, 0x4002);
+				phy_write(phydev, phydev->addr, 0xE, 0x0000);
+				/* MMD Address 2h, Register 6h - RGMII TX Data Pad Skew */
+				phy_write(phydev, phydev->addr, 0xD, 0x0002);
+				phy_write(phydev, phydev->addr, 0xE, 0x0006); // Reg 0x6
+				phy_write(phydev, phydev->addr, 0xD, 0x4002);
+				phy_write(phydev, phydev->addr, 0xE, 0x0000);
+				/* MMD Address 2h, Register 8h - RGMII Clock Pad Skew */
+				phy_write(phydev, phydev->addr, 0xD, 0x0002);
+				phy_write(phydev, phydev->addr, 0xE, 0x0008); // Reg 0x8
+				phy_write(phydev, phydev->addr, 0xD, 0x4002);
+				phy_write(phydev, phydev->addr, 0xE, 0x03C0);
+				do_once_gem0 = 1;
+			}
+			else {
+				printf ("\n\nBoard PHY config: unsupported PHY Model, ID:0x%08X\n\n", phydev->phy_id);
+			}
+		}
 	}
 	/* second interface, on board */
 	else if (phydev->dev->iobase == ZYNQ_GEM_BASEADDR1) {
