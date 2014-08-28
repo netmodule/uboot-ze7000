@@ -268,8 +268,9 @@ static int zynq_nand_init_nand_flash(int option)
 
 	/* disable interrupts */
 	writel(ZYNQ_NAND_CLR_CONFIG, &zynq_nand_smc_base->cfr);
-	/* Initialize the NAND interface by setting cycles and operation mode */
-	writel(ZYNQ_NAND_SET_CYCLES, &zynq_nand_smc_base->scr);
+	/* Initialize the NAND interface by setting operation mode.
+	 * NAND cycles already set by FSBL, @as/da, NetModule */
+	/* writel(ZYNQ_NAND_SET_CYCLES, &zynq_nand_smc_base->scr); */
 	if (option & NAND_BUSWIDTH_16)
 		writel((ZYNQ_NAND_SET_OPMODE | 0x1), &zynq_nand_smc_base->sor);
 	else
