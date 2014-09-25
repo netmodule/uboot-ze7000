@@ -114,7 +114,7 @@
         "$othbootargs " \
         "earlyprintk\0" \
 	"sdargs=setenv bootargs console=ttyPS0,115200 " \
-        "root=/dev/mmcblk0p2 rw rootfstype=ext2 rootwait " \
+        "root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait " \
         "ip=:::::eth0:off " \
         "$othbootargs " \
         "earlyprintk\0" \
