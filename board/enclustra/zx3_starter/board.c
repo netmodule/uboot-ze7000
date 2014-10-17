@@ -343,36 +343,12 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-/**
- * Set the pin muxing for QSPI NOR access
- */
-#ifdef CONFIG_ZYNQ_SDHCI0
-static void set_mio_mux_sdio0( void ){
-//#define MUXPINVALUE 0x00000680
-#define MUXPINVALUE 0x00001780
-
-    writel(0xDF0D, &slcr_base->slcr_unlock);        //unlock slcr
-
-    writel(MUXPINVALUE, &slcr_base->mio_pin[40]);     /* Pin 40, SD0.CLK */
-    writel(MUXPINVALUE, &slcr_base->mio_pin[41]);     /* Pin 41, SD0.CMD */
-    writel(MUXPINVALUE, &slcr_base->mio_pin[42]);     /* Pin 42, SD0.D0 */
-    writel(MUXPINVALUE, &slcr_base->mio_pin[43]);     /* Pin 43, SD0.D1 */
-    writel(MUXPINVALUE, &slcr_base->mio_pin[44]);     /* Pin 44, SD0.D2 */
-    writel(MUXPINVALUE, &slcr_base->mio_pin[45]);     /* Pin 45, SD0.D3 */
-
-    writel(0x2001, &slcr_base->reserved1[2]);         /* Set SDHCI clock to 32 MHz */
-
-    writel(0x767B, &slcr_base->slcr_lock);          //lock slcr
-}
-#endif
-
 #ifdef CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bd)
 {
     int ret = 0;
 
 # if defined(CONFIG_ZYNQ_SDHCI0)
-    set_mio_mux_sdio0();
     ret = zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR0);
 # endif
 # if defined(CONFIG_ZYNQ_SDHCI1)
